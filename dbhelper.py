@@ -5,7 +5,7 @@ class Nasenspruch:
     def __init__(self, text, time, active, name=None):
         self.text = text
         #~ try:
-            #~ self.time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            #~ self.time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
         #~ except:
             #~ self.time = None
         self.time = time
@@ -26,7 +26,7 @@ class DBHelper:
         
     def addSpruch(self, userid, text):
         q = "INSERT INTO nasenspruch (userid, time, text) VALUES (?, ?, ?)"
-        args = (userid, datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), text)
+        args = (userid, datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), text)
         self.c.execute(q, args)
         self.c.commit()
         
@@ -48,12 +48,6 @@ class DBHelper:
             args = (userid, )
             result = []
             for row in self.c.execute(q, args):
-                result.append(Nasenspruch(row[0], row[1], row[2]))
-            return result
-        else:
-            q = "SELECT text, time, active FROM nasenspruch"
-            result = []
-            for row in self.c.execute(q):
                 result.append(Nasenspruch(row[0], row[1], row[2]))
             return result
             
