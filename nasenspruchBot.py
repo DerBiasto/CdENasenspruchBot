@@ -111,7 +111,8 @@ class NasenspruchBot:
             try:
                 command_handlers[command](chat_id, user_id, args, update)
             except KeyError:
-                self.tclient.send_message('Unbekannter Befehl. Versuch es mal mit /help', chat_id)
+                if command.startswith('/'):
+                    self.tclient.send_message('Unbekannter Befehl. Versuch es mal mit /help', chat_id)
                 pass
         elif "callback_query" in update.keys():
             args = update["callback_query"]["data"].split(' ', 2)
