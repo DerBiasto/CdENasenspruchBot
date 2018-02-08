@@ -2,76 +2,73 @@ import sqlite3
 import datetime
 
 class Nasenspruch:
-    def __init__(self, text, time, active, name=None):
+    def __init__(self, text, time, active, id):
         self.text = text
-        #~ try:
-            #~ self.time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
-        #~ except:
-            #~ self.time = None
         self.time = time
         self.active = active
-        self.name = name
+        self.id = id
 
 class DBHelper:
-    def __init__(self, dbname="nasenspruch.sqlite"):
+    def __init__(self, dbname="nasensprueche.sqlite"):
         self.dbname = dbname
         self.c = sqlite3.connect(dbname)
         
     def setup(self):
-        q = "CREATE TABLE IF NOT EXISTS nasenspruch(userid text, time text, text text)"
+        q = "CREATE TABLE IF NOT EXISTS nasenspruch(user_id text, time text, text text, active integer DEFAULT 0, id INTEGER PRIMARY KEY ASC)"
         self.c.execute(q)
-        #q = "ALTER TABLE nasenspruch ADD COLUMN active integer DEFAULT 0"
-        #self.c.execute(q)
         self.c.commit()
         
-    def addSpruch(self, userid, text):
-        q = "INSERT INTO nasenspruch (userid, time, text) VALUES (?, ?, ?)"
-        args = (userid, datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), text)
+    def add_spruch(self, user_id, text):
+        q = "INSERT INTO nasenspruch (user_id, time, text) VALUES (?, ?, ?)"
+        args = (user_id, datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), text)
         self.c.execute(q, args)
         self.c.commit()
         
-    def deleteSprueche(self, userid):
-        q = "DELETE FROM nasenspruch WHERE userid = ?"
-        args = (userid, )
+    def delete_sprueche(self, user_id):
+        q = "DELETE FROM nasenspruch WHERE user_id = ?"
+        args = (user_id, )
         self.c.execute(q, args)
         self.c.commit()
         
-    def deleteSpruch(self, userid, time):
-        q = "DELETE FROM nasenspruch WHERE userid = ? and time = ?"
-        args = (userid, time)
+    def delete_spruch(self, user_id, id):
+        q = "DELETE FROM nasenspruch WHERE user_id = ? and id = ?"
+        args = (user_id, id)
         self.c.execute(q, args)
         self.c.commit()
         
-    def getSprueche(self, userid=None):
-        if userid:
-            q = "SELECT text, time, active FROM nasenspruch WHERE userid = ?"
-            args = (userid, )
-            result = []
-            for row in self.c.execute(q, args):
-                result.append(Nasenspruch(row[0], row[1], row[2]))
-            return result
-            
-    def setActiveSpruch(self, userid, time=None):
-        if time: 
-            q = "UPDATE nasenspruch SET active = 0 WHERE userid = ? and time != ?"
-            args = (userid, time)
-            self.c.execute(q, args)   
-            q = "UPDATE nasenspruch SET active = 1 WHERE userid = ? and time = ?"
-            args = (userid, time)
-            self.c.execute(q, args)
-        else:
-            q = "UPDATE nasenspruch SET active = 0 WHERE userid = ?"
-            args = (userid, )
-            self.c.execute(q, args)
-        self.c.commit()
-        
-    def getActiveSpruch(self, userid):
-        q = "SELECT text, time, active FROM nasenspruch WHERE userid = ? and active = 1"
-        args = (userid, )
+    def get_sprueche(self, user_id):
+        q = "SELECT text, time, active, id FROM nasenspruch WHERE user_id = ?"
+        args = (user_id, )
         result = []
         for row in self.c.execute(q, args):
-            result.append(Nasenspruch(row[0], row[1], row[2]))
+            result.append(Nasenspruch(row[0], row[1], row[2], row[3]))
         return result
+            
+    def set_active_spruch(self, user_id, id=None):
+        q = "UPDATE nasenspruch SET active = 0 WHERE user_id = ?"
+        args = (user_id, )
+        self.c.execute(q, args)   
+        if id:
+            q = "UPDATE nasenspruch SET active = 1 WHERE user_id = ? and id = ?"
+            args = (user_id, id)
+            self.c.execute(q, args)
+        self.c.commit()
+        
+    def get_active_spruch(self, user_id):
+        q = "SELECT text, time, active, id FROM nasenspruch WHERE user_id = ? and active = 1"
+        args = (user_id, )
+        result = self.c.execute(q, args).fetchone()
+        if result == None:
+            result = []
+            q = "SELECT text, time, active, id FROM nasenspruch WHERE user_id = ?"
+            args = (user_id, )
+            for row in self.c.execute(q, args):
+                result.append(Nasenspruch(row[0], row[1], row[2], row[3]))
+            
+            result.sort(key=lambda x: (x.time), reverse=True)
+            
+            return result[0]
+        return Nasenspruch(result[0], result[1], result[2], result[3])
         
         
     
