@@ -1,0 +1,5 @@
+/env
+/pip-selfcheck.json
+/__pycache__
+nasensprueche.sqlite
+config.ini
