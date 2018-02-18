@@ -66,10 +66,9 @@ class DBHelper:
                 result.append(Nasenspruch(row[0], row[1], row[2], row[3]))
             
             result.sort(key=lambda x: (x.time), reverse=True)
-            
-            return result[0]
+            if result:
+                return result[0]
+            else:
+                return None
         return Nasenspruch(result[0], result[1], result[2], result[3])
-        
-        
-    
         
