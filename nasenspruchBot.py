@@ -211,7 +211,7 @@ class NasenspruchBot:
             keyboard = [[{"text": 'Alle Sprüche', "callback_data": '/delete {} all'.format(user_id)}]]
             keyboard.append([{"text": 'Nichts löschen', "callback_data": '/delete {} stop'.format(user_id)}])
             for s in spruchlist:
-                keyboard.append([{"text": "{}{} {}".format('(aktiv) ' if s.active == 1 else '', s.text, s.id), "callback_data": '/delete {} {}'.format(user_id, s.id)}])
+                keyboard.append([{"text": "{}{}".format('(aktiv) ' if s.active == 1 else '', s.text), "callback_data": '/delete {} {}'.format(user_id, s.id)}])
             reply_markup = {"inline_keyboard": keyboard}
             return json.dumps(reply_markup)
             
